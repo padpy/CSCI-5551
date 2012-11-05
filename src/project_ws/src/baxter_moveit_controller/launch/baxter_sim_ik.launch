@@ -12,9 +12,4 @@
 
   <!-- Aruco Marker detection -->
   <include file="$(find baxter_moveit_controller)/launch/aruco_detect.launch"/>
-
-  <!-- Enable Baxter -->
-  <!-- <node name="baxter_enable" pkg="baxter_tools" type="enable_robot.py" respawn="false" output="screen" args="-e" /> -->
-
-  <!-- <node name="IKController" pkg="baxter_moveit_controller" type="BaxterController.py" output="screen"/> -->
 </launch>

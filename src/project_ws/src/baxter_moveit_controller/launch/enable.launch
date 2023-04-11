@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <!-- Enable Baxter -->
+  <node name="baxter_enable" pkg="baxter_tools" type="enable_robot.py" respawn="false" output="screen" args="-e" />
+
+  <!-- Baxter provided utility -->
+  <arg name="node_start_delay" default="10.0" />
+  <node name="joint_trajectory_action_server" pkg="baxter_interface" type="joint_trajectory_action_server.py" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+</launch>

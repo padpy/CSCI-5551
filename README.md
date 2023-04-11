@@ -20,7 +20,8 @@ Currently, the Baxter Gazebo simulation requires three terminals to run the simu
 ./scripts/start_ws.sh
 
 # Inside the docker container
-roslaunch baxter_gazebo baxter_world.launch
+catkin_make
+roslaunch baxter_moveit_controller baxter_sim.launch
 ```
 
 ### Terminal 2: Enable robot & Start MoveIt server
@@ -28,24 +29,11 @@ roslaunch baxter_gazebo baxter_world.launch
 ./scripts/attatch_shell.sh
 
 # Inside the docker container
-# Enable robot
-rosrun baxter_tools enable_robot.py -e
 
-# Check that robot is enabled
-rosrun baxter_tools enable_robot.py -s
-
-# Start MoveIt Server
-rosrun roslaunch baxter_moveit_tutorial moveit_init.launch
+# Start controller sequence
+rosrun baxter_moveit_controller node.py
 ```
 
-### Terminal 3: Move Robot
-```bash
-./scripts/attatch_shell.sh
-
-# Inside the docker container
-# Enable robot
-rosrun baxter_moveit_tutorial example.py
-```
 
 ## External Docs
 This repo is still a bit Jank. I am basically following these instructions after starting the docker container.

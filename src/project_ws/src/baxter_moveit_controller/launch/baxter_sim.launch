@@ -33,4 +33,8 @@
   <!-- Baxter provided utility -->
   <arg name="node_start_delay" default="10.0" />
   <node name="joint_trajectory_action_server" pkg="baxter_interface" type="joint_trajectory_action_server.py" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+
+
+  <!-- Aruco Marker detection -->
+  <include file="$(find baxter_moveit_controller)/launch/aruco_detect.launch"/>
 </launch>

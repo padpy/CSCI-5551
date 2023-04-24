@@ -1,3 +1,4 @@
+import sys
 import rospy
 import moveit_commander
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
@@ -89,8 +90,17 @@ class BaxterMoveitController(object):
         #Grab joint values for initial state
         current_robot_pose = self.group.get_current_joint_values()
         
-        self.move(0.75, 0.0, 0.1, np.pi, 2, 0)
-        self.move_to_base_position(current_robot_pose)
+        my_input = 0.0
+        
+        while(my_input is not None):
+            my_input = [float(x) for x in input("Enter 6 value separated by a comma. First 3 values are position (x, y, z), last 3 are orientation (x, y, z).\n").split(', ')]
+            if(my_input is None):
+                break
+            else:
+                self.move(my_input[0], my_input[1], my_input[2], my_input[3], my_input[4], my_input[5])
+            #self.move(1.5, 0.0, -0.5, np.pi, 0, 0)
+                print("Moving back to initial position")
+                self.move_to_base_position(current_robot_pose)
 
 
 if __name__ == '__main__':

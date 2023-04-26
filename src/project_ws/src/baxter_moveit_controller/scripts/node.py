@@ -90,8 +90,34 @@ class BaxterMoveitController(object):
         print("Done!")
         
     def move_to_block_1(self):
-        continue
+        print("Moving Block 1")
         
+    def move_to_base_position(self, base_coordinate):
+        
+        #orientation = quaternion_from_euler
+        #orientation = quaternion_from_euler(np.pi, 0, 0)
+        
+        #orientation = quaternion_from_euler(roll, pitch, yaw)
+        #target_pose.orientation.x = orientation[0]
+        #target_pose.orientation.y = orientation[1]
+        #target_pose.orientation.z = orientation[2]
+        #target_pose.orientation.w = orientation[3]
+        
+        target_pose = base_coordinate
+    
+        self.group.set_joint_value_target(base_coordinate)
+
+        self.group.plan()
+
+        success = self.group.go(wait=True)
+        
+        #Ensures no residual movement
+        self.group.stop()
+        
+        #Clear targets after planning poses.
+        self.group.clear_pose_targets()   
+
+        print("Returned to starting position: " + str(success))
 
     def _home(self):
         #current_pose = self.group.get_current_pose(end_effector_link='left_gripper').pose
@@ -101,8 +127,8 @@ class BaxterMoveitController(object):
         
         #Move to initial State
         self.smooth_move_to_initial()
-        
-        #Move back to base position.
+
+        #Move Back To Base Position
         self.move_to_base_position(current_robot_pose)
         
         # my_input = "input"

@@ -14,7 +14,7 @@ class BaxterMoveitController(object):
 
         # Instantiate robot interface object
         self.robot = moveit_commander.RobotCommander()
-        self.group = moveit_commander.MoveGroupCommander("left_arm")
+        self.group = moveit_commander.MoveGroupCommander("right_arm")
 
     def run(self):
         # Initialize moveit_commander and rospy node
@@ -26,7 +26,7 @@ class BaxterMoveitController(object):
         moveit_commander.os._exit(0)
         
     def move(self, x, y, z, roll, pitch, yaw):
-        current_pose = self.group.get_current_pose(end_effector_link='left_gripper').pose
+        current_pose = self.group.get_current_pose(end_effector_link='right_gripper').pose
 
         orientation = quaternion_from_euler
         print("Current Pose: " + str(current_pose))
@@ -42,7 +42,7 @@ class BaxterMoveitController(object):
         target_pose.orientation.z = orientation[2]
         target_pose.orientation.w = orientation[3]
         
-        self.group.set_pose_target(target_pose, end_effector_link='left_gripper')
+        self.group.set_pose_target(target_pose, end_effector_link='right_gripper')
 
         self.group.plan()
 
@@ -54,15 +54,43 @@ class BaxterMoveitController(object):
         #Clear targets after planning poses.
         self.group.clear_pose_targets()
         
+    def Orient_Gripper(self):
+        current_pose = self.group.get_current_pose(end_effector_link='right_gripper').pose
+        target_pose = current_pose
+        
+        orientation = quaternion_from_euler(np.pi, 0, 0)
+        target_pose.orientation.x = orientation[0]
+        target_pose.orientation.y = orientation[1]
+        target_pose.orientation.z = orientation[2]
+        target_pose.orientation.w = orientation[3]
+        
+        self.group.set_pose_target(target_pose, end_effector_link='right_gripper')
+
+        self.group.plan()
+
+        self.group.go(wait=True)
+        
+        #Ensures no residual movement
+        self.group.stop()
+        
+        #Clear targets after planning poses.
+        self.group.clear_pose_targets()
+        
+        #To Do: Grasp Object
+        #Grasp Object: https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html
+        # grasping_group = 'right_gripper'
+        # touch_links = self.robot.get_link_names(group=grasping_group)
+        # scene.attach_box(eef_link, box_name, touch_links=touch_links)
+        
     def smooth_move_to_initial(self):
         waypoints = []
         waypoints_e= []
         
         scale = 1.0
         
-        wpose = self.group.get_current_pose(end_effector_link = 'left_gripper').pose
-        wpose.position.y +=  0.5  # First move up (z)
-        wpose.position.z +=  1.0
+        wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
+        wpose.position.y -=  0.5  # First move up (z)
+        wpose.position.z +=  0.8
         waypoints.append(copy.deepcopy(wpose))
         
         (plan, fraction) = self.group.compute_cartesian_path(
@@ -78,7 +106,7 @@ class BaxterMoveitController(object):
         
         group_variable_values = self.group.get_current_joint_values()
         print("variable 1: " + str(group_variable_values[0]))
-        group_variable_values[0] = group_variable_values[0] - 1.4
+        group_variable_values[0] = group_variable_values[0] + 1.4
         self.group.set_joint_value_target(group_variable_values)
 
         plan2 = self.group.plan()
@@ -88,25 +116,80 @@ class BaxterMoveitController(object):
         self.group.stop()
         
         print("Done!")
-        
-    def move_to_block_1(self):
-        print("Moving Block 1")
+    
+    #Move_to_block will pass in a block integer value 1-5 where block 1 is closest to Baxter and block 5 is farthest from Baxter.
+    def move_to_block(self, block):
+        print("Moving Block: " + str(block))
         waypoints = []
         
-        wpose = self.group.get_current_pose(end_effector_link = 'left_gripper').pose
-        wpose.position.x +=  0.7        # First move up (z)
-        wpose.position.y -= -0.4
+        wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
+        #wpose.position.x +=  0.7        # First move away from Baxter
+        wpose.position.y += 0.1   
+        wpose.position.z -= 0.12
         waypoints.append(copy.deepcopy(wpose))
         
         (plan, fraction) = self.group.compute_cartesian_path(
         waypoints, 0.01, 0.0)
         print("Executing plan")
+        
         self.group.execute(plan, wait=True)
         
         self.group.stop()
         
         #Clear targets after planning poses.
         self.group.clear_pose_targets()
+        
+        #Orient Gripper to pickup block
+        self.Orient_Gripper()
+        
+        
+        #Second portion move gripper to position just above our blocks. Intermediate position between initial position and block - 
+        #helpful for calibration with simulated and physcial baxter. 
+        waypoints2 = []
+        
+        wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
+        
+        if(block == 1):
+            wpose.position.x += -0.1542 
+            
+        elif(block == 3):
+            wpose.position.x += 0.0
+        
+        waypoints.append(copy.deepcopy(wpose))
+        
+        (plan, fraction) = self.group.compute_cartesian_path(
+        waypoints, 0.01, 0.0)
+        print("Executing plan")
+        
+        self.group.execute(plan, wait=True)
+        
+        self.group.stop()
+        
+        #Clear targets after planning poses.
+        self.group.clear_pose_targets()
+        
+        
+        #Third portion: Finally move to actual block position
+        
+        waypoints3 = []
+        
+        wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
+        
+        wpose.position.z -= 0.05
+        
+        waypoints.append(copy.deepcopy(wpose))
+        
+        (plan, fraction) = self.group.compute_cartesian_path(
+        waypoints, 0.01, 0.0)
+        print("Executing plan")
+        
+        self.group.execute(plan, wait=True)
+        
+        self.group.stop()
+        
+        #Clear targets after planning poses.
+        self.group.clear_pose_targets()
+        
         
     def move_to_base_position(self, base_coordinate):
         
@@ -141,15 +224,18 @@ class BaxterMoveitController(object):
         #Get Base Joint Values
         #base_robot_pose = self.group.get_current_joint_values()
         
-        #Move to initial State
+        #Move to initial State (uncomment)
         self.smooth_move_to_initial()
         
         initial_robot_pose = self.group.get_current_joint_values()
         
-        self.move_to_block_1()
-
-        #Move Back To Initial Position
-        self.move_to_base_position(initial_robot_pose)
+        self.move_to_block(1)
+        
+        my_input = "input"
+        my_input = input("Type anything to continue: ")
+        if(my_input is not None):
+            #Move Back To Initial Position
+            self.move_to_base_position(initial_robot_pose)
         
         
         

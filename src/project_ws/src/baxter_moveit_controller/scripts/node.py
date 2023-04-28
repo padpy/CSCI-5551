@@ -91,6 +91,35 @@ class BaxterMoveitController(object):
         
     def move_to_block_1(self):
         print("Moving Block 1")
+        waypoints = []
+        
+        wpose = self.group.get_current_pose(end_effector_link = 'left_gripper').pose
+        wpose.position.x +=  0.7        # First move up (z)
+        wpose.position.y -= -0.4
+        waypoints.append(copy.deepcopy(wpose))
+        
+        (plan, fraction) = self.group.compute_cartesian_path(
+        waypoints, 0.01, 0.0)
+        print("Executing plan")
+        self.group.execute(plan, wait=True)
+        
+        self.group.stop()
+        
+        #Clear targets after planning poses.
+        self.group.clear_pose_targets()
+        
+        # group_variable_values = self.group.get_current_joint_values()
+        # print("variable 1: " + str(group_variable_values[1]))
+        # print("variable 5: " + str(group_variable_values[5]))
+        # group_variable_values[1] = group_variable_values[1] + 0.01
+        # group_variable_values[5] = group_variable_values[5] 
+        # self.group.set_joint_value_target(group_variable_values)
+
+        # plan2 = self.group.plan()
+        
+        # self.group.go(wait = True)
+        
+        # self.group.stop()
         
     def move_to_base_position(self, base_coordinate):
         
@@ -123,13 +152,20 @@ class BaxterMoveitController(object):
         #current_pose = self.group.get_current_pose(end_effector_link='left_gripper').pose
         
         #Get Base Joint Values
-        current_robot_pose = self.group.get_current_joint_values()
+        #base_robot_pose = self.group.get_current_joint_values()
         
         #Move to initial State
-        self.smooth_move_to_initial()
+        #self.smooth_move_to_initial()
+        
+        initial_robot_pose = self.group.get_current_joint_values()
+        
+        self.move_to_block_1()
 
+        #Move Back To Initial Position
+        self.move_to_base_position(initial_robot_pose)
+        
         #Move Back To Base Position
-        self.move_to_base_position(current_robot_pose)
+        #self.move_to_base_position(base_robot_pose)
         
         # my_input = "input"
         # while(my_input is not None):

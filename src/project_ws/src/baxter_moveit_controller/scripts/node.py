@@ -108,19 +108,6 @@ class BaxterMoveitController(object):
         #Clear targets after planning poses.
         self.group.clear_pose_targets()
         
-        # group_variable_values = self.group.get_current_joint_values()
-        # print("variable 1: " + str(group_variable_values[1]))
-        # print("variable 5: " + str(group_variable_values[5]))
-        # group_variable_values[1] = group_variable_values[1] + 0.01
-        # group_variable_values[5] = group_variable_values[5] 
-        # self.group.set_joint_value_target(group_variable_values)
-
-        # plan2 = self.group.plan()
-        
-        # self.group.go(wait = True)
-        
-        # self.group.stop()
-        
     def move_to_base_position(self, base_coordinate):
         
         #orientation = quaternion_from_euler
@@ -155,7 +142,7 @@ class BaxterMoveitController(object):
         #base_robot_pose = self.group.get_current_joint_values()
         
         #Move to initial State
-        #self.smooth_move_to_initial()
+        self.smooth_move_to_initial()
         
         initial_robot_pose = self.group.get_current_joint_values()
         
@@ -163,6 +150,8 @@ class BaxterMoveitController(object):
 
         #Move Back To Initial Position
         self.move_to_base_position(initial_robot_pose)
+        
+        
         
         #Move Back To Base Position
         #self.move_to_base_position(base_robot_pose)

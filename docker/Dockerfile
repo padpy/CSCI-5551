@@ -5,7 +5,7 @@ RUN apt-get update
 
 RUN mkdir -p /root/ros_ws/src
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git net-tools vim
 RUN apt-get install -y ros-noetic-effort-controllers ros-noetic-moveit ros-noetic-aruco-detect
 
 SHELL ["/bin/bash", "-c"]

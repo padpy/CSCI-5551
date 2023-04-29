@@ -124,8 +124,8 @@ class BaxterMoveitController(object):
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         #wpose.position.x +=  0.7        # First move away from Baxter
-        wpose.position.y += 0.1   
-        wpose.position.z -= 0.12
+        wpose.position.y += 0.09   
+        wpose.position.z -= 0.10
         waypoints.append(copy.deepcopy(wpose))
         
         (plan, fraction) = self.group.compute_cartesian_path(
@@ -151,17 +151,43 @@ class BaxterMoveitController(object):
         
         if(block == 1):
             wpose.position.x += -0.1542 
+            wpose.position.y += -0.002426
+        
+        elif(block == 2):
+            wpose.position.x += -0.074447
             
         elif(block == 3):
             wpose.position.x += 0.0
         
-        waypoints.append(copy.deepcopy(wpose))
+        elif(block == 4):
+            wpose.position.x += 0.079342
+            wpose.position.y += -0.007645 
+            
+        elif(block == 5):
         
-        (plan, fraction) = self.group.compute_cartesian_path(
-        waypoints, 0.01, 0.0)
+            # group_variable_values = self.group.get_current_joint_values()
+            # print("variable 1: " + str(group_variable_values[5]))
+            # group_variable_values[5] = group_variable_values[5] - 0.3
+            # self.group.set_joint_value_target(group_variable_values)
+            # wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
+
+            # plan2 = self.group.plan()
+            
+            # self.group.go(wait = True)
+            
+            # self.group.stop()
+            
+            #print("Done!")
+            wpose.position.x += 0.154084
+            wpose.position.y += -0.005812
+        
+        waypoints2.append(copy.deepcopy(wpose))
+        
+        (plan2, fraction) = self.group.compute_cartesian_path(
+        waypoints2, 0.01, 0.0)
         print("Executing plan")
         
-        self.group.execute(plan, wait=True)
+        self.group.execute(plan2, wait=True)
         
         self.group.stop()
         
@@ -169,21 +195,23 @@ class BaxterMoveitController(object):
         self.group.clear_pose_targets()
         
         
+        value = input("Type something: ")
+        
         #Third portion: Finally move to actual block position
         
         waypoints3 = []
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         
-        wpose.position.z -= 0.05
+        wpose.position.z -= 0.08
         
-        waypoints.append(copy.deepcopy(wpose))
+        waypoints3.append(copy.deepcopy(wpose))
         
-        (plan, fraction) = self.group.compute_cartesian_path(
-        waypoints, 0.01, 0.0)
+        (plan3, fraction) = self.group.compute_cartesian_path(
+        waypoints3, 0.01, 0.0)
         print("Executing plan")
         
-        self.group.execute(plan, wait=True)
+        self.group.execute(plan3, wait=True)
         
         self.group.stop()
         
@@ -229,7 +257,7 @@ class BaxterMoveitController(object):
         
         initial_robot_pose = self.group.get_current_joint_values()
         
-        self.move_to_block(1)
+        self.move_to_block(3)
         
         my_input = "input"
         my_input = input("Type anything to continue: ")

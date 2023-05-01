@@ -124,7 +124,8 @@ class BaxterMoveitController(object):
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         #wpose.position.x +=  0.7        # First move away from Baxter
-        wpose.position.y += 0.09   
+        wpose.position.y += 0.12999
+        wpose.position.x -= 0.04
         wpose.position.z -= 0.10
         waypoints.append(copy.deepcopy(wpose))
         
@@ -150,18 +151,20 @@ class BaxterMoveitController(object):
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         
         if(block == 1):
-            wpose.position.x += -0.1542 
-            wpose.position.y += -0.002426
+            wpose.position.x += -0.1302 
+            wpose.position.y += -0.000158 #was negative
         
         elif(block == 2):
-            wpose.position.x += -0.074447
+            wpose.position.x += -0.057447
+            wpose.position.y += -0.000148  #was negative
             
         elif(block == 3):
-            wpose.position.x += 0.0
+            wpose.position.x += 0.005
+            wpose.position.y += 0.005
         
         elif(block == 4):
             wpose.position.x += 0.079342
-            wpose.position.y += -0.007645 
+            wpose.position.y += -0.011006  #-0.003006 
             
         elif(block == 5):
         
@@ -203,7 +206,7 @@ class BaxterMoveitController(object):
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         
-        wpose.position.z -= 0.08
+        wpose.position.z -= 0.11
         
         waypoints3.append(copy.deepcopy(wpose))
         
@@ -218,6 +221,11 @@ class BaxterMoveitController(object):
         #Clear targets after planning poses.
         self.group.clear_pose_targets()
         
+        #Manipulating objects requires the robot be able to touch them without the planning scene reporting the contact as a collision. 
+        #By adding link names to the touch_links array, we are telling the planning scene to ignore collisions between those links and the box.
+        #grasping_group = 'right_gripper'
+        #touch_links = self.robot.get_link_names(group=grasping_group)
+        #scene.attach_box(self.group.get_end_effector_link(), "block_1_0_clone_0", touch_links=touch_links)
         
     def move_to_base_position(self, base_coordinate):
         
@@ -247,17 +255,20 @@ class BaxterMoveitController(object):
         print("Returned to starting position: " + str(success))
 
     def _home(self):
-        #current_pose = self.group.get_current_pose(end_effector_link='left_gripper').pose
+        #current_pose = self.group.get_current_pose(end_effector_link='left_gripper').pose        
         
         #Get Base Joint Values
         #base_robot_pose = self.group.get_current_joint_values()
+        
+        #print(base_robot_pose)
+        #print(self.group.get_joints())
         
         #Move to initial State (uncomment)
         self.smooth_move_to_initial()
         
         initial_robot_pose = self.group.get_current_joint_values()
         
-        self.move_to_block(3)
+        self.move_to_block(1)
         
         my_input = "input"
         my_input = input("Type anything to continue: ")
@@ -270,27 +281,6 @@ class BaxterMoveitController(object):
         #Move Back To Base Position
         #self.move_to_base_position(base_robot_pose)
         
-        # my_input = "input"
-        # while(my_input is not None):
-            # my_input = [float(x) for x in input("Enter 6 value separated by a comma. First 3 values are position (x, y, z), last 3 are orientation (x, y, z).\n").split(', ')]
-            # if(my_input is None):
-                # break
-            # else:
-                # #print(self.shoulder.get_current_pose().pose)
-                
-                # self.move_joint(my_input[0], my_input[1])
-            # #self.move(1.5, 0.0, -0.5, np.pi, 0, 0)
-                # print("Moving back to initial position")
-                # self.group = moveit_commander.MoveGroupCommander("left_arm")
-                # self.move_to_base_position(current_robot_pose)
-                # group_names = self.robot.get_group_names()
-                
-                # #print(self.group.get_current_joint_values("left_s0"))
-                # print("============ Available Planning Groups:", self.robot.get_group_names())
-                # print("============ Available Planning Joints:", self.group.get_joints())
-                # self.group.stop()
-                # self.group.clear_pose_targets() 
-                
 
 if __name__ == '__main__':
     try:

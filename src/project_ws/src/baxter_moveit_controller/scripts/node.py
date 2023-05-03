@@ -5,6 +5,9 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import numpy as np
 from math import pi, tau, dist, fabs, cos
 import copy
+import baxter_interface
+from baxter_interface import CHECK_VERSION
+
 
 class BaxterMoveitController(object):
     def __init__(self):
@@ -15,6 +18,8 @@ class BaxterMoveitController(object):
         # Instantiate robot interface object
         self.robot = moveit_commander.RobotCommander()
         self.group = moveit_commander.MoveGroupCommander("right_arm")
+        self.right = baxter_interface.Gripper('right', CHECK_VERSION)
+        self.right.calibrate()
 
     def run(self):
         # Initialize moveit_commander and rospy node
@@ -59,6 +64,7 @@ class BaxterMoveitController(object):
         target_pose = current_pose
         
         orientation = quaternion_from_euler(np.pi, 0, 0)
+
         target_pose.orientation.x = orientation[0]
         target_pose.orientation.y = orientation[1]
         target_pose.orientation.z = orientation[2]
@@ -124,7 +130,7 @@ class BaxterMoveitController(object):
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         #wpose.position.x +=  0.7        # First move away from Baxter
-        wpose.position.y += 0.12999
+        wpose.position.y += 0.28999
         wpose.position.x -= 0.04
         wpose.position.z -= 0.10
         waypoints.append(copy.deepcopy(wpose))
@@ -152,15 +158,15 @@ class BaxterMoveitController(object):
         
         if(block == 1):
             wpose.position.x += -0.1302 
-            wpose.position.y += -0.000158 #was negative
+            wpose.position.y -= 0.012 #was negative
         
         elif(block == 2):
             wpose.position.x += -0.057447
             wpose.position.y += -0.000148  #was negative
             
         elif(block == 3):
-            wpose.position.x += 0.005
-            wpose.position.y += 0.005
+            wpose.position.x += -0.1302 
+            wpose.position.y += 0.004
         
         elif(block == 4):
             wpose.position.x += 0.079342
@@ -206,7 +212,7 @@ class BaxterMoveitController(object):
         
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
         
-        wpose.position.z -= 0.11
+        wpose.position.z -= 0.08
         
         waypoints3.append(copy.deepcopy(wpose))
         
@@ -223,20 +229,14 @@ class BaxterMoveitController(object):
         
         #Manipulating objects requires the robot be able to touch them without the planning scene reporting the contact as a collision. 
         #By adding link names to the touch_links array, we are telling the planning scene to ignore collisions between those links and the box.
+        self.right.close(True)
+        
+        #Possible MoveIt implementation
         #grasping_group = 'right_gripper'
         #touch_links = self.robot.get_link_names(group=grasping_group)
         #scene.attach_box(self.group.get_end_effector_link(), "block_1_0_clone_0", touch_links=touch_links)
         
     def move_to_base_position(self, base_coordinate):
-        
-        #orientation = quaternion_from_euler
-        #orientation = quaternion_from_euler(np.pi, 0, 0)
-        
-        #orientation = quaternion_from_euler(roll, pitch, yaw)
-        #target_pose.orientation.x = orientation[0]
-        #target_pose.orientation.y = orientation[1]
-        #target_pose.orientation.z = orientation[2]
-        #target_pose.orientation.w = orientation[3]
         
         target_pose = base_coordinate
     
@@ -262,13 +262,14 @@ class BaxterMoveitController(object):
         
         #print(base_robot_pose)
         #print(self.group.get_joints())
+        self.right.open()
         
         #Move to initial State (uncomment)
-        self.smooth_move_to_initial()
+        #self.smooth_move_to_initial()
         
         initial_robot_pose = self.group.get_current_joint_values()
         
-        self.move_to_block(1)
+        self.move_to_block(3)
         
         my_input = "input"
         my_input = input("Type anything to continue: ")
@@ -276,7 +277,33 @@ class BaxterMoveitController(object):
             #Move Back To Initial Position
             self.move_to_base_position(initial_robot_pose)
         
+        self.Orient_Gripper()
         
+        # right_current_pose = self.group.get_current_pose(end_effector_link='right_gripper_left_finger').pose
+        # print("Right Gripper Pose: " + str(right_current_pose))
+        # right_target_pose = right_current_pose
+        # right_target_pose.position.x = right_current_pose.position.x + 0.05
+        # right_target_pose.position.z = right_current_pose.position.z + 0.1
+
+        # self.group.set_pose_target(right_target_pose, end_effector_link='right_gripper')
+
+        # plan = self.group.plan()
+        
+        # self.group.go(wait=True)
+        
+        #rs = baxter_interface.RobotEnable(CHECK_VERSION)
+        #init_state = rs.state().enabled
+        
+
+
+        # current = self.right.position()
+        # print(current)
+        
+
+        # #self.right.open()
+        # current = self.right.position()
+        # print(current)
+        # print(self.right.type())
         
         #Move Back To Base Position
         #self.move_to_base_position(base_robot_pose)

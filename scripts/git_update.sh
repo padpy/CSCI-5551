@@ -5,5 +5,5 @@ do
     echo "Updating src/$dir"
     cd $dir
     git pull
-    cd -
+    cd - 2>&1 /dev/null
 done

@@ -59,29 +59,6 @@ class BaxterMoveitController(object):
         #Clear targets after planning poses.
         self.group.clear_pose_targets()
 
-    def Orient_Gripper(self):
-        current_pose = self.group.get_current_pose(end_effector_link='right_gripper').pose
-        target_pose = current_pose
-
-        orientation = quaternion_from_euler(np.pi, 0, 0)
-
-        target_pose.orientation.x = orientation[0]
-        target_pose.orientation.y = orientation[1]
-        target_pose.orientation.z = orientation[2]
-        target_pose.orientation.w = orientation[3]
-
-        self.group.set_pose_target(target_pose, end_effector_link='right_gripper')
-
-        self.group.plan()
-
-        self.group.go(wait=True)
-
-        #Ensures no residual movement
-        self.group.stop()
-
-        #Clear targets after planning poses.
-        self.group.clear_pose_targets()
-
         #To Do: Grasp Object
         #Grasp Object: https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html
         # grasping_group = 'right_gripper'
@@ -120,6 +97,8 @@ class BaxterMoveitController(object):
         self.group.go(wait = True)
 
         self.group.stop()
+        joint_vals = self.group.get_current_joint_values()
+        print("Joint Values: " + str(joint_vals[-1]))
 
         print("Done!")
 
@@ -147,7 +126,8 @@ class BaxterMoveitController(object):
         self.group.clear_pose_targets()
 
         #Orient Gripper to pickup block
-        self.Orient_Gripper()
+        #self.Orient_Gripper()
+        self.rotate_wrist(-0.90)
 
 
         #Second portion move gripper to position just above our blocks. Intermediate position between initial position and block -
@@ -241,6 +221,7 @@ class BaxterMoveitController(object):
         # I am not sure where in code this is thrown, so for right now I am going to leave this todo until we can find deteremine
         # the joint value bounds for the wrist either through code or experimentally.
         joint_vals = self.group.get_current_joint_values()
+        print("Joint Values: " + str(joint_vals[-1]))
         joint_vals[-1] = angle
         self.group.set_joint_value_target(joint_vals)
         self.group.go()
@@ -269,12 +250,10 @@ class BaxterMoveitController(object):
         #Get Base Joint Values
         #base_robot_pose = self.group.get_current_joint_values()
 
-        #print(base_robot_pose)
-        #print(self.group.get_joints())
         self.right.open()
 
         #Move to initial State (uncomment)
-        #self.smooth_move_to_initial()
+        self.smooth_move_to_initial()
 
         initial_robot_pose = self.group.get_current_joint_values()
 
@@ -285,37 +264,6 @@ class BaxterMoveitController(object):
         if(my_input is not None):
             #Move Back To Initial Position
             self.move_to_base_position(initial_robot_pose)
-
-        self.Orient_Gripper()
-
-        # right_current_pose = self.group.get_current_pose(end_effector_link='right_gripper_left_finger').pose
-        # print("Right Gripper Pose: " + str(right_current_pose))
-        # right_target_pose = right_current_pose
-        # right_target_pose.position.x = right_current_pose.position.x + 0.05
-        # right_target_pose.position.z = right_current_pose.position.z + 0.1
-
-        # self.group.set_pose_target(right_target_pose, end_effector_link='right_gripper')
-
-        # plan = self.group.plan()
-
-        # self.group.go(wait=True)
-
-        #rs = baxter_interface.RobotEnable(CHECK_VERSION)
-        #init_state = rs.state().enabled
-
-
-
-        # current = self.right.position()
-        # print(current)
-
-
-        # #self.right.open()
-        # current = self.right.position()
-        # print(current)
-        # print(self.right.type())
-
-        #Move Back To Base Position
-        #self.move_to_base_position(base_robot_pose)
 
 
 if __name__ == '__main__':

@@ -44,11 +44,23 @@ class TicTacToe:
     piece = "X"	#X goes first
     
     def __init__(self,_mode, _piece):
-        if (_mode != "dumb" and _mode != "bigbro"):
+        if (_mode != "dumb" and _mode != "bigbro" and _mode != "puppet"):
             return -1;
         else:
             self.mode = _mode
         
+        if (_piece != "O" and _piece != "X"):
+            return -1;
+        else:
+            self.piece = _piece
+            
+    def setMode(self, _mode):
+        if (_mode != "dumb" and _mode != "bigbro" and _mode != "puppet"):
+            return -1;
+        else:
+            self.mode = _mode
+            
+    def setPiece(self, _piece):
         if (_piece != "O" and _piece != "X"):
             return -1;
         else:
@@ -63,7 +75,7 @@ class TicTacToe:
         else:
             print("Invalid")
             
-    def computerMove(self):
+    def computerMove(self, spot = 0):
         if self.mode == "dumb":
             randLocation = random.choice(self.empty) #get random empty space
             print(randLocation)
@@ -75,6 +87,9 @@ class TicTacToe:
         if self.mode == "bigbro":
             print("bigbro not implimented yet")
             self.mode = "dumb"
+            
+        if self.mode == "puppet":
+            self.board(spot) = self.piece
 
     def checkWin(self):
         piece = self.piece
@@ -133,5 +148,3 @@ def main():
                 break
 if __name__ == '__main__':
     main()
-
-

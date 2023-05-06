@@ -335,19 +335,6 @@ class BaxterMoveitController(object):
         #Move to initial State (uncomment)
         self.smooth_move_to_initial()
 
-<<<<<<< HEAD
-        initial_robot_pose = self.group.get_current_joint_values()
-
-        self.move_to_block(1)
-
-        my_input = "input"
-        my_input = input("Type anything to continue: ")
-        if(my_input is not None):
-            #Move Back To Initial Position
-            self.move_to_base_position(initial_robot_pose)
-=======
->>>>>>> 406049c (Making minor changes to node.py)
-
         self.Place_Block(6)
         my_input = input("Type anything to continue: ")
         if(my_input is not None):

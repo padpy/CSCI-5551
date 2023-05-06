@@ -24,8 +24,7 @@
     <param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
     <param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
     <param name="verbose" value="$(arg verbose)"/>
-    <remap from="camera/compressed"
-        to="/camera/color/image_raw/compressed"/>
-    <remap from="camera_info" to="/camera/color/camera_info"/>
+    <remap from="camera/compressed" to="$(arg camera)/image/$(arg transport)"/>
+    <remap from="camera_info" to="$(arg camera)/camera_info"/>
   </node>
 </launch>

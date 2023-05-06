@@ -1,12 +1,14 @@
 import sys
 import rospy
 import moveit_commander
+import tf
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import numpy as np
 from math import pi, tau, dist, fabs, cos
 import copy
 import baxter_interface
 from baxter_interface import CHECK_VERSION
+from geometry_msgs.msg import Pose
 
 
 class BaxterMoveitController(object):
@@ -25,6 +27,16 @@ class BaxterMoveitController(object):
         # Initialize moveit_commander and rospy node
 
         self._home()
+
+        # initial_robot_pose = self.group.get_current_joint_values()
+
+        # self.move_to_block(3)
+
+        # my_input = "input"
+        # my_input = input("Type anything to continue: ")
+        # if(my_input is not None):
+        #     #Move Back To Initial Position
+        #     self.move_to_base_position(initial_robot_pose)
 
         # When finished shut down moveit_commander.
         moveit_commander.roscpp_shutdown()
@@ -72,9 +84,7 @@ class BaxterMoveitController(object):
         scale = 1.0
 
         wpose = self.group.get_current_pose(end_effector_link = 'right_gripper').pose
-        wpose.position.y -=  0.5  # First move up (z)
-        wpose.position.z +=  0.8
-        waypoints.append(copy.deepcopy(wpose))
+        waypoints.append(self.make_pose(0.2, -0.9, 0.12, wpose.orientation.x, wpose.orientation.y, wpose.orientation.z, wpose.orientation.w))
 
         (plan, fraction) = self.group.compute_cartesian_path(
         waypoints, 0.01, 0.0)
@@ -101,6 +111,18 @@ class BaxterMoveitController(object):
         print("Joint Values: " + str(joint_vals[-1]))
 
         print("Done!")
+
+    def make_pose(self, x, y, z, qx, qy, qz, qw):
+        pose = Pose()
+        pose.position.x = x
+        pose.position.y = y
+        pose.position.z = z
+        pose.orientation.x = qx
+        pose.orientation.y = qy
+        pose.orientation.z = qz
+        pose.orientation.w = qw
+
+        return pose
 
     #Move_to_block will pass in a block integer value 1-5 where block 1 is closest to Baxter and block 5 is farthest from Baxter.
     def move_to_block(self, block):
@@ -313,6 +335,7 @@ class BaxterMoveitController(object):
         #Move to initial State (uncomment)
         self.smooth_move_to_initial()
 
+<<<<<<< HEAD
         initial_robot_pose = self.group.get_current_joint_values()
 
         self.move_to_block(1)
@@ -322,6 +345,8 @@ class BaxterMoveitController(object):
         if(my_input is not None):
             #Move Back To Initial Position
             self.move_to_base_position(initial_robot_pose)
+=======
+>>>>>>> 406049c (Making minor changes to node.py)
 
         self.Place_Block(6)
         my_input = input("Type anything to continue: ")

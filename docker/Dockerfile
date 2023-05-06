@@ -5,7 +5,7 @@ RUN apt-get update
 
 RUN mkdir -p /root/ros_ws/src
 
-RUN apt-get update && apt-get install -y git python3-pip
+RUN apt-get update && apt-get install -y git python3-pip mlocate
 RUN apt-get install -y ros-noetic-effort-controllers
 RUN apt-get install -y ros-noetic-moveit
 RUN apt-get install -y ros-noetic-aruco-detect

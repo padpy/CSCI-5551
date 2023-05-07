@@ -9,6 +9,7 @@ import copy
 import baxter_interface
 from baxter_interface import CHECK_VERSION
 from geometry_msgs.msg import Pose
+from std_msgs.msg import String
 
 
 class BaxterMoveitController(object):
@@ -18,7 +19,6 @@ class BaxterMoveitController(object):
         rospy.init_node('moveit_baxter_example', anonymous=True)
         
         #Fiducial listener
-        #rospy.init_node('fiducial_0')
         self.Fiducial_Listener = tf.TransformListener()
 
         # Instantiate robot interface object
@@ -27,10 +27,28 @@ class BaxterMoveitController(object):
         self.right = baxter_interface.Gripper('right', CHECK_VERSION)
         self.right.calibrate()
 
+        #Instantiate next move
+        self.move = ""
+        self.previous_move = ""
+
+    #Tic-Tac-Toe Subscriber in order to get next move.   
+    def callback(self, data):
+        self.set_move(data.data)
+
+    def listener(self):
+        #rospy.init_node('listener', anonymous = True)
+        rospy.Subscriber("chatter", String, self.callback)
+        rospy.sleep(1)
+
+    def set_move(self, data):
+        self.previous_move = self.move
+        self.move = data
+
     def run(self):
         # Initialize moveit_commander and rospy node
+        self.listener()
 
-        #self._home()
+        self._home()
         initial_robot_pose = self.group.get_current_joint_values()
 
         transform_array = []
@@ -41,8 +59,7 @@ class BaxterMoveitController(object):
             (transform, rotation) = self.Fiducial_Listener.lookupTransform('/base', 'fiducial_0', rospy.Time(0))
             samples = samples + 1
             transform_array[0] += transform[0]; transform_array[1] += transform[1]; transform_array[2] += transform[2];
-            
-            
+                
         transform_array[0] = transform_array[0]/10; transform_array[1] = transform_array[1]/10; transform_array[2] = transform_array[2]/10;
         x = transform[0]; y = transform[1]; z = transform[2];
         #self.move_to_block(x, y, z, 2)

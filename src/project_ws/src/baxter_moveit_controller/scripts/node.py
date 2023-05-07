@@ -44,13 +44,7 @@ class BaxterMoveitController(object):
         self.previous_move = self.move
         self.move = data
 
-    def run(self):
-        # Initialize moveit_commander and rospy node
-        self.listener()
-
-        self._home()
-        initial_robot_pose = self.group.get_current_joint_values()
-
+    def get_fidicual_displacement(self):
         transform_array = []
         transform_array = np.zeros(3)
         samples = 0
@@ -62,21 +56,36 @@ class BaxterMoveitController(object):
                 
         transform_array[0] = transform_array[0]/10; transform_array[1] = transform_array[1]/10; transform_array[2] = transform_array[2]/10;
         x = transform[0]; y = transform[1]; z = transform[2];
-        #self.move_to_block(x, y, z, 2)
-        self.Place_Block(x, y, z, 5)
-                #self.move(x, y, z, np.pi, 0, 0)
+        return x, y, z
+
+    def run(self):
+        # Initialize moveit_commander and rospy node
+        self.listener()
+        block_count = 1
+
+        self._home()
+        initial_robot_pose = self.group.get_current_joint_values()
+        x, y, z = self.get_fidicual_displacement()
+
+        while not rospy.is_shutdown():
+            if(self.previous_move != self.move):
+                self.move_to_block(x, y, z, block_count)
+                self.move_to_base_position
+                self.Place_Block(x, y, z, self.move)
+                self.move_to_base_position
+                block_count = block_count + 1
             
+            #Testing purposes
+            my_input = "input"
+            my_input = input("Type anything to continue: ")
+            if(my_input is not None):
+                #Move Back To Initial Position
+                self.move_to_base_position(initial_robot_pose)
 
-        my_input = "input"
-        my_input = input("Type anything to continue: ")
-        if(my_input is not None):
-            #Move Back To Initial Position
-            self.move_to_base_position(initial_robot_pose)
-
-        # When finished shut down moveit_commander.
-        moveit_commander.roscpp_shutdown()
-        moveit_commander.os._exit(0)
-
+            # When finished shut down moveit_commander.
+            moveit_commander.roscpp_shutdown()
+            moveit_commander.os._exit(0)
+    
     def move(self, x, y, z, roll, pitch, yaw):
         current_pose = self.group.get_current_pose(end_effector_link='right_gripper').pose
 

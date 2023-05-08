@@ -73,6 +73,14 @@ def getNextMove(board):
     location = convertCoordinateToLocation(next_move[0]) #converts coordinate to location
     return location #send message to baxter to move to locatio
 
+def getNextMoveRandom(board):
+    empty = []
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == 0:
+                empty.push((i*3)+j+1)
+    randLocation = random.choice(self.empty) #get random empty space
+    return randLocation  #this is what we 1will send to the robot for its arm to move to
 
 def talker():
     pub = rospy.Publisher('chatter', String, queue_size=10)

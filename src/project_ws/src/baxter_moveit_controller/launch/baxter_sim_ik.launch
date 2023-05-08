@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <!-- Launch Baxter Simulation -->
+  <include file="$(find baxter_gazebo)/launch/baxter_world.launch"/>
+
+
+  <arg name="load_robot_desc?ription" default="false"/>
+
+  <!-- Baxter provided utility -->
+  <arg name="node_start_delay" default="5.0" />
+  <node name="joint_trajectory_action_server" pkg="baxter_interface" type="joint_trajectory_action_server.py" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+
+  <!-- Aruco Marker detection -->
+  <include file="$(find baxter_moveit_controller)/launch/aruco_detect.launch"/>
+
+  <!-- Enable Baxter -->
+  <!-- <node name="baxter_enable" pkg="baxter_tools" type="enable_robot.py" respawn="false" output="screen" args="-e" /> -->
+
+  <!-- <node name="IKController" pkg="baxter_moveit_controller" type="BaxterController.py" output="screen"/> -->
+</launch>

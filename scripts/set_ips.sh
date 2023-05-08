@@ -1,9 +1,2 @@
-if [[ $1 == "master" ]]; then
-    export ROS_MASTER_URI=http://$2:11311
-    export ROS_IP=$2
-fi
-
-if [[ $1 == "client" ]]; then
-    export ROS_MASTER_URI=http://$2:11311
-    export ROS_IP=$3
-fi
+export ROS_MASTER_URI=http://192.168.1.101:11311
+export ROS_IP=192.168.1.134

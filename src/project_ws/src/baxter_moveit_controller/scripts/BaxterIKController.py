@@ -25,8 +25,8 @@ class BaxterIKController(object):
         }
 
         self._home_pose = {
-            "left": self.cartestian_pose(0.5, 0.2, 0.15, 0.14034926870185907, 0.9897608157331103, 0.011245608178220349, 0.023433879552554254),
-            "right": self.cartestian_pose(0.5, -0.2, 0.15, 0.0, 1.0, 0.0, 0.0),
+            "left": self.cartestian_pose( 0.5,  0.4, 0.2, 0.0, 1.0, 0.0, 0.0),
+            "right": self.cartestian_pose(0.5, -0.2, 0.2, 0.0, 1.0, 0.0, 0.0),
         }
 
         self._control_rate = rospy.Rate(20.0)
@@ -65,9 +65,10 @@ class BaxterIKController(object):
             "<%dB" % len(response.result_type), response.result_type
         )
 
-        if response_seed[0] != response.RESULT_INVALID:
-            rospy.logerr(f"Invalid path")
-            # TODO: Throw exception
+        if response_seed[0] == response.RESULT_INVALID:
+            err_str = f"Invalid path"
+            rospy.logerr(err_str)
+            raise RuntimeError(err_str)
 
         return dict(zip(response.joints[0].name, response.joints[0].position))
 

@@ -12,8 +12,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn:
         print(f"Connected by {addr}")
         while True:
-            #
-            #
             return_data = ""
             data = conn.recv(1024)
             if not data:
@@ -44,4 +42,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     for i in range(3):
                         print(game.board[i])
                 return_data += "\nGame Over"
+            
             conn.sendall(return_data)

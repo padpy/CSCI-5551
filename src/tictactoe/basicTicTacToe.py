@@ -4,16 +4,38 @@ import random
 MIN = -1000
 MAX = 1000
 
+def generate_values(board, piece):
+    values = []
+    for i in range(9):
+        if board[i//3][i%3] == " ":
+            board[i//3][i%3] = piece
+            score = heuristic(board, piece)
+            values.append(score)
+            board[i//3][i%3] = " "
+        else:
+            values.append(None)
+    return values
+
+def heuristic(board, piece):
+    rows = [set(row) for row in board]
+    cols = [set(col) for col in zip(*board)]
+    diag1 = set(board[i][i] for i in range(3))
+    diag2 = set(board[i][2-i] for i in range(3))
+    num_wins = sum(1 for line in rows + cols + [diag1, diag2] if n in line and len(line) > 1)
+    return num_wins
+
 def minimax(depth, nodeIndex, maximizingPlayer, values, alpha, beta):
     # Terminating condition. i.e
     # leaf node is reached
     if depth == 3:
-        return values[nodeIndex]
+        score = heuristic(board, piece)
+        return score
 
+    values = generate_values(board, piece)
     if maximizingPlayer:
         best = MIN
         # Recur for left and right children
-        for i in range(0, 2):
+        for i in range(len(values)):
             val = minimax(depth + 1, nodeIndex * 2 + i, False, values, alpha, beta)
             best = max(best, val)
             alpha = max(alpha, best)
@@ -26,7 +48,7 @@ def minimax(depth, nodeIndex, maximizingPlayer, values, alpha, beta):
         best = MAX
         # Recur for left and
         # right children
-        for i in range(0, 2):
+        for i in range(len(values)):
             val = minimax(depth + 1, nodeIndex * 2 + i, True, values, alpha, beta)
             best = min(best, val)
             beta = min(beta, best)
@@ -36,23 +58,17 @@ def minimax(depth, nodeIndex, maximizingPlayer, values, alpha, beta):
                 break
         return best
 
-
 class TicTacToe:
     board = [[0,0,0],[0,0,0],[0,0,0]] #game board
     empty = [[1,1], [1,2], [1,3], [2,1], [2,2], [2,3], [3,1], [3,2], [3,3]] #list of empty spaces
-    mode = "dumb" #"bigbro" or "dumbass"
-    piece = "X"	#X goes first
+    mode = "dumb" #"bigbro" or "dumb" or "puppet"
+    piece = "X"	#computer player
+    piece_oppo = "O" #human player
     
     def __init__(self,_mode, _piece):
-        if (_mode != "dumb" and _mode != "bigbro" and _mode != "puppet"):
-            return -1;
-        else:
-            self.mode = _mode
+        self.setMode(_mode)
         
-        if (_piece != "O" and _piece != "X"):
-            return -1;
-        else:
-            self.piece = _piece
+        self.setPiece(_piece)
             
     def setMode(self, _mode):
         if (_mode != "dumb" and _mode != "bigbro" and _mode != "puppet"):
@@ -65,13 +81,13 @@ class TicTacToe:
             return -1;
         else:
             self.piece = _piece
+            self.piece_oppo = "O" if _piece == "X" else "X"
             
     def playerMove(self, row, col):
         location = [row, col]
         if location in self.empty:
             self.empty.remove(location)
-            self.board[row-1][col-1] = self.piece
-            self.piece = "O"
+            self.board[row-1][col-1] = self.piece_oppo
         else:
             print("Invalid")
             
@@ -81,18 +97,15 @@ class TicTacToe:
             print(randLocation)
             self.empty.remove(randLocation) #remove from list of available spaces
             self.board[randLocation[0]-1][randLocation[1]-1] = self.piece # -1 to convert to board form 
-            self.piece = "X"
             return randLocation  #this is what we 1will send to the robot for its arm to move to
         
         if self.mode == "bigbro":
-            print("bigbro not implimented yet")
-            self.mode = "dumb"
+            return minimax(depth + 1, nodeIndex * 2 + i, False, values, alpha, beta)
             
         if self.mode == "puppet":
             self.board(spot) = self.piece
 
-    def checkWin(self):
-        piece = self.piece
+    def checkWin(self, piece):
         board = self.board
         for i in range(3):
             if board[i][0] == board[i][1] == board[i][2] == piece:

@@ -62,6 +62,9 @@ class BaxterMoveitController(object):
         # Initialize moveit_commander and rospy node
         self.listener()
         block_count = 1
+        
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
 
         self._home()
         initial_robot_pose = self.group.get_current_joint_values()
@@ -76,8 +79,17 @@ class BaxterMoveitController(object):
                 block_count = block_count + 1
             
             #Testing purposes
+            '''
             my_input = "input"
             my_input = input("Type anything to continue: ")
+            '''
+            message = input("Enter a command (type 'exit' to quit): ")
+            if message == "exit":
+                break
+            s.sendall(message.encode())
+            #my_input = s.recv(1024).decode() #Uncomment when server's all ready to go
+            print(f"Received {my_input}")
+
             if(my_input is not None):
                 #Move Back To Initial Position
                 self.move_to_base_position(initial_robot_pose)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import struct
 import baxter_interface
 from baxter_interface import CHECK_VERSION
@@ -9,6 +11,9 @@ from baxter_core_msgs.srv import (
     SolvePositionIK,
     SolvePositionIKRequest,
 )
+import tf
+import numpy as np
+from time import sleep
 
 
 class BaxterIKController(object):
@@ -17,16 +22,56 @@ class BaxterIKController(object):
         rs = baxter_interface.RobotEnable(CHECK_VERSION)
         rs.enable()
 
+        #Fiducial Listener
+        self.Fiducial_Listener = tf.TransformListener()
+
+        sleep(5)
+        transform_array = []
+        transform_array = np.zeros(3)
+        samples = 0
+        while samples != 10:
+            (transform, _rotation) = self.Fiducial_Listener.lookupTransform('/reference/base', 'fiducial_0', rospy.Time(0))
+            samples = samples + 1
+            transform_array[0] += transform_array[0]; transform_array[1] += transform_array[1]; transform_array[2] += transform_array[2]
+
+        #x = transform_array[0]/10; y = transform_array[1]/10; z = transform_array[2]/10
+
         self._joint_accuracy = 0.3
         self._motion_timeout = 20.0
         self._arms = {
             "left": baxter_interface.Limb("left"),
             "right": baxter_interface.Limb("right"),
         }
+        self._gripper = {
+            "left": baxter_interface.Gripper("left"),
+            "right": baxter_interface.Gripper("right"),
+        }
+
+        self._gripper["right"].calibrate()
 
         self._home_pose = {
             "left": self.cartestian_pose( 0.5,  0.4, 0.2, 0.0, 1.0, 0.0, 0.0),
             "right": self.cartestian_pose(0.5, -0.2, 0.2, 0.0, 1.0, 0.0, 0.0),
+        }
+
+        self._to_fiducial = {
+            "right": self.cartestian_pose(0.45,  0.03, -0.23, -0.35, 1.0, 0.0, 0.0),
+        }
+
+        self._block_3 = {
+            "right": self.cartestian_pose(0.54, -0.01, -0.23, 0.0, 1.0, 0.0, 0.0), #.09, -.04, -0.23
+        }
+
+        self._block_2 = {
+            "right": self.cartestian_pose(0.67,  -0.05, -0.23, 0.0, 1.0, 0.0, 0.0)
+        }
+
+        self._pickup_block_3 = {
+            "right": self.cartestian_pose(0.54,  -0.01, -0.36, 0.0, 1.0, 0.0, 0.0)
+        }
+
+        self._place_block_5 = {
+            "right": self.cartestian_pose(0.68,  -0.01, -0.28, 0.0, 1.0, 0.0, 0.0)
         }
 
         self._control_rate = rospy.Rate(20.0)
@@ -40,6 +85,7 @@ class BaxterIKController(object):
             self._service_name("right"), SolvePositionIK
         )
         rospy.wait_for_service(self._service_name("right"), 5.0)
+
 
     def cartestian_pose(self, x, y, z, qx, qy, qz, qw):
         return Pose(
@@ -83,8 +129,31 @@ class BaxterIKController(object):
         return f"ExternalTools/{limb}/PositionKinematicsNode/IKService"
 
     def run(self):
-        self.go_to_pose(self._home_pose['left'], 'left')
+        #Fiducial Cartesian Hard-Coded
+        x_delta = 0.58; y_delta = 0.03; z_delta = -0.2
+
+        #self.go_to_pose(self._home_pose['left'], 'left')
         self.go_to_pose(self._home_pose['right'], 'right')
+
+        #self.go_to_pose(self._to_fiducial['right'], 'right')
+        #self._arms['right']
+        #self._gripper['right'].open()
+        #self._gripper['right'].close()
+
+
+        self.go_to_pose(self._block_3['right'], 'right')
+        rospy.sleep(3)
+        self.go_to_pose(self._pickup_block_3['right'], 'right')
+        rospy.sleep(1)
+        self._gripper['right'].close()
+        self.go_to_pose(self._home_pose['right'], 'right')
+        rospy.sleep(1)
+        self.go_to_pose(self._place_block_5['right'], 'right')
+        rospy.sleep(1)
+        self._gripper['right'].open()
+        rospy.sleep(1)
+        self.go_to_pose(self._home_pose['right'], 'right')
+
 
 
 def main():

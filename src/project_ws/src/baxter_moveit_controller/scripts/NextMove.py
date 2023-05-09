@@ -31,17 +31,17 @@ def miniMax(board, score, isMaxing):
         player = checkWin(board)[1]
         if player == 1:    #if computer wins
             return [-1, -1], 1 
-        else:              #if human wins
-            return [-1, -1], -1
+        else:              #if human wins 
+            return [-1, -1], -1  
     bestScore = 0
     bestMove = [-1, -1]  #should never return this as it was already checked if game was won or lost would be good to add a condition to check if this is returned
     if isMaxing:
         for i in range(3):
             for j in range(3):
                 if board[i][j] == 0:        # checks next possible move for computer
-                    board[i][j] = 1
+                    board[i][j] = 1             #simulate computer move
                     score = miniMax(board, score, False)[1]  
-                    board[i][j] = 0  
+                    board[i][j] = 0            #undo simulated move
                     if score > bestScore:     # if better than last computer score then make that move
                         bestScore = score
                         bestMove = [i,j]
@@ -50,9 +50,9 @@ def miniMax(board, score, isMaxing):
         for i in range(3):
             for j in range(3):
                 if board[i][j] == 0:    # checks next possible move for human
-                    board[i][j] = 2
+                    board[i][j] = 2         #simulate player move
                     score = miniMax(board, score, True)[1] 
-                    board[i][j] = 0  
+                    board[i][j] = 0             #undo simulated move
                     if score < bestScore:       # if human score beats the computer score then the computer should make that move instead
                         bestScore = score
                         bestMove = [i,j]

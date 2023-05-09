@@ -14,7 +14,7 @@ from baxter_core_msgs.srv import (
 import tf
 import numpy as np
 from time import sleep
-
+from srv import t3
 
 class BaxterIKController(object):
     def __init__(self):
@@ -127,6 +127,15 @@ class BaxterIKController(object):
 
     def _service_name(self, limb):
         return f"ExternalTools/{limb}/PositionKinematicsNode/IKService"
+    
+    def get_next_move_client(board):
+        rospy.wait_for_service('get_next_move')
+        try:
+            get_next_move = rospy.ServiceProxy('get_next_move', t3)
+            resp1 = get_next_move(board)
+            return resp1.result
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
 
     def run(self):
         #Fiducial Cartesian Hard-Coded

@@ -1,12 +1,10 @@
 <!-- Run the aruco_detect node -->
 <launch>
   <!-- namespace for camera input -->
-  <arg name="camera" default="/cameras/head_camera"/>
-  <arg name="image" default="color"/>
-  <arg name="transport" default="compressed"/>
-  <arg name="fiducial_len" default="0.07"/>
+  <arg name="fiducial_len" default="0.0635"/>
   <arg name="dictionary" default="7"/>
   <arg name="do_pose_estimation" default="true"/>
+  <arg name="transport" default="compressed"/>
   <!-- If vis_msgs set to true, pose estimation will be published with ROS standard vision_msgs -->
   <arg name="vis_msgs" default="false"/>
   <arg name="ignore_fiducials" default="" />
@@ -24,7 +22,7 @@
     <param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
     <param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
     <param name="verbose" value="$(arg verbose)"/>
-    <remap from="camera/compressed" to="$(arg camera)/image/$(arg transport)"/>
-    <remap from="camera_info" to="$(arg camera)/camera_info"/>
+    <remap from="camera/compressed" to="/tictactoe/color/image_raw/compressed"/>
+    <remap from="camera_info" to="/tictactoe/color/camera_info"/>
   </node>
 </launch>

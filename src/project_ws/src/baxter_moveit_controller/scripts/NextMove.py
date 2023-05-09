@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import random
 import rospy
 from std_msgs.msg import String
 
@@ -73,19 +73,25 @@ def getNextMove(board):
     location = convertCoordinateToLocation(next_move[0]) #converts coordinate to location
     return location #send message to baxter to move to locatio
 
+def getNextMoveRandom(board):
+    empty = []
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == 0:
+                empty.push((i*3)+j+1)
+    randLocation = random.choice(empty) #get random empty space
+    return randLocation  #this is what we 1will send to the robot for its arm to move to
 
 def talker():
+    board = [[1,1,2],
+            [1,0,0],
+            [1,2,1]]    #temp board for testing this will be replaced with vision function call to get board
+
     pub = rospy.Publisher('chatter', String, queue_size=10)
-    count = 0
-    rospy.init_node('tictactoe', anonymous = True)
-    rate = rospy.Rate(1)
-    while not rospy.is_shutdown():
-        board = [[1,1,2],[1,0,0],[1,2,1]] #temp board for testing this will be replaced with vision function call to get board
-        next_move = getNextMove(board)
-        rospy.loginfo(next_move) 
-        pub.publish(next_move)  #0 stop baxter, 1-9 move to location
-        rate.sleep()
-        count = count + 1
+    next_move = getNextMove(board)    # switch to getNextMoveRandom(board) to get random moves instead
+    rospy.loginfo(next_move) 
+    pub.publish(next_move)  #0 stop baxter, 1-9 move to location
+
 if __name__ == '__main__':
     try:
         talker()

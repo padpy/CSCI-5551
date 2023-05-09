@@ -14,7 +14,7 @@ from baxter_core_msgs.srv import (
 import tf
 import numpy as np
 from time import sleep
-from srv import t3
+from baxter_moveit_controller.srv import t3
 
 class BaxterIKController(object):
     def __init__(self):
@@ -85,7 +85,7 @@ class BaxterIKController(object):
             position=Point(x=x, y=y, z=z),
             orientation=Quaternion(x=qx, y=qy, z=qz, w=qw),
         )
-        
+
 
     def joints_from_pose(self, pose, limb):
         pose_stamped = PoseStamped(
@@ -134,7 +134,7 @@ class BaxterIKController(object):
 
     def _service_name(self, limb):
         return f"ExternalTools/{limb}/PositionKinematicsNode/IKService"
-    
+
     def get_next_move_client(board):
         rospy.wait_for_service('get_next_move')
         try:

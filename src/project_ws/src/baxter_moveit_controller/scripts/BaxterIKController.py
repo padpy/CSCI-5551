@@ -26,7 +26,7 @@ class BaxterIKController(object):
         rs.enable()
 
         self._blocks_used = 0
-        self._current_move = 0
+        self._current_move = -1
 
         #Fiducial Listener
         self.Fiducial_Listener = tf.TransformListener()
@@ -56,7 +56,7 @@ class BaxterIKController(object):
 
         self._fiducial_loc = [0,0,0]
         # self._fiducial_offset = [-0.03, -0.0762, -0.0462]
-        self._fiducial_offset = [0.075, 0.025, -0.0725]
+        self._fiducial_offset = [0.06, 0.005, -0.065]
         self._location_offsets = {
             'block1': [0.08,0.075,0],
             'block2': [0.08,0.0375,0],
@@ -245,16 +245,21 @@ class BaxterIKController(object):
             self._fiducial_loc[1],
             self._fiducial_loc[2],
             -0.707, 0.707, 0.0, 0.0
-            ), 'right', speed=0.15)
+            ), 'right', speed=0.10)
+        sleep(0.5)
 
         for n in range(5):
             self.home('right')
+            sleep(0.5)
             self.go_to_location(f'block{n+1}', 'right', speed=0.10)
+            sleep(0.5)
             self.home('right')
 
         for n in range(9):
             self.home('right')
+            sleep(0.5)
             self.go_to_location(f'board{n+1}', 'right', speed=0.10)
+            sleep(0.5)
             self.home('right')
 
     def _calibrate_pick_and_place(self):
@@ -279,9 +284,9 @@ class BaxterIKController(object):
 
     def _poll_move(self):
         while not rospy.is_shutdown():
-            if self._current_move == 10:
+            if self._current_move == 0:
                 # Reset the board
-                self._current_move = 0
+                self._current_move = -1
                 self._blocks_used = 0
                 rospy.loginfo(f'Good game! Resetting board.')
 
@@ -289,7 +294,7 @@ class BaxterIKController(object):
                 # I don't always multithread, but when I do.....
                 # I don't do it safely.
                 place_location = self._current_move
-                self._current_move = 0
+                self._current_move = -1
 
                 if self._blocks_used >= 5:
                     rospy.logerr('I am out of blocks, please reset the board. Send command "10"')
@@ -312,8 +317,15 @@ class BaxterIKController(object):
 
 
     def run(self):
+
         # self._calibrate()
         # self._calibrate_pick_and_place()
+
+
+        self.go_to_pose(self._home_pose['left'], 'left', speed=1.0)
+        self.home('right')
+
+        self.set_fiducial_loc()
         self._poll_move()
 
 def main():

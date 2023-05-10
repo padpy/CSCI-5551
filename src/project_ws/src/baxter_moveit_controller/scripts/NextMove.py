@@ -94,6 +94,20 @@ def getNextMove(board):
         location = getNextMoveRandom(board)
     return location #send message to baxter to move to location
 
+def testing():
+    inputString = input("Enter a board in 9 digit format 000000000. upperleft of board is first digit. 1 is computer 2 is player piece ")
+    while len(inputString) != 9:
+        inputString = input("Invalid enter 9 digits ") #make sure is valid move
+    tempBoard = []
+    board = []
+    for i in range(9):
+        tempBoard.append(int(inputString[i]))
+        if (i % 3 == 2):
+            board.append(tempBoard)
+            tempBoard = []
+    next_move = getNextMove(board)
+    print(next_move)
+    return next_move
 
 def talker():
     board = [[1,1,2],

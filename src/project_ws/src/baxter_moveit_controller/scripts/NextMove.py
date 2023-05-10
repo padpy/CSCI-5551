@@ -110,12 +110,8 @@ def testing():
     return next_move
 
 def talker():
-    board = [[1,1,2],
-            [1,0,0],
-            [1,2,1]]    #temp board for testing this will be replaced with vision function call to get board
-
     pub = rospy.Publisher('chatter', String, queue_size=10)
-    next_move = getNextMove(board)    # switch to getNextMoveRandom(board) to get random moves instead
+    next_move = testing()
     rospy.loginfo(next_move) 
     pub.publish(next_move)  #0 stop baxter, 1-9 move to location
 

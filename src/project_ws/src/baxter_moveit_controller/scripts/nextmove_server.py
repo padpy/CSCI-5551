@@ -1,18 +1,12 @@
-
+#!/usr/bin/env python3
 import rospy
-from srv import t3, t3Response
-from . import NextMove
+import NextMove
 
 def nextmove(req):
-    if req.mode == "minimax":
-        return t3Response(NextMove.GetNextMove(req.board))
-    else:
-        return t3Response(NextMove.GetNextMoveRandom(req.board))
+    pass
 
 def nextmove_server():
-    rospy.init_node('t3_server')
-    s = rospy.Service('get_next_move', t3, nextmove)
-    rospy.spin()
-    
+    pass
+
 if __name__ == "__main__":
     nextmove_server()

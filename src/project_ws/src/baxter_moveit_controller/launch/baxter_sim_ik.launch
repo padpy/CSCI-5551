@@ -4,7 +4,7 @@
   <include file="$(find baxter_gazebo)/launch/baxter_world.launch"/>
 
 
-  <arg name="load_robot_desc?ription" default="false"/>
+  <arg name="load_robot_description" default="false"/>
 
   <!-- Baxter provided utility -->
   <arg name="node_start_delay" default="5.0" />

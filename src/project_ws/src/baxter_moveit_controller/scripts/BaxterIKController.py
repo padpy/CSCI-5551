@@ -30,7 +30,7 @@ class BaxterIKController(object):
 
         #Fiducial Listener
         self.Fiducial_Listener = tf.TransformListener()
-        rospy.SubscribeListener('tictactoe_move', UInt16, self._move_callback)
+        rospy.Subscriber('tictactoe_move', UInt16, self._move_callback)
         self._joint_accuracy = 0.03
         self._motion_timeout = 20.0
         self._arms = {
@@ -216,7 +216,7 @@ class BaxterIKController(object):
         return f"ExternalTools/{limb}/PositionKinematicsNode/IKService"
 
     def _move_callback(self, msg: UInt16):
-        pass
+        self._current_move = int(msg.data)
 
     def set_fiducial_loc(self, n_samples=1):
         sleep(1)
@@ -235,7 +235,7 @@ class BaxterIKController(object):
 
     def _calibrate(self):
         self.go_to_pose(self._home_pose['left'], 'left', speed=1.0)
-        self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+        self.home('right')
 
         self.set_fiducial_loc()
 
@@ -248,18 +248,18 @@ class BaxterIKController(object):
             ), 'right', speed=0.15)
 
         for n in range(5):
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
             self.go_to_location(f'block{n+1}', 'right', speed=0.10)
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
 
         for n in range(9):
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
             self.go_to_location(f'board{n+1}', 'right', speed=0.10)
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
 
     def _calibrate_pick_and_place(self):
         self.go_to_pose(self._home_pose['left'], 'left', speed=1.0)
-        self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+        self.home('right')
 
         self.set_fiducial_loc()
 
@@ -272,16 +272,49 @@ class BaxterIKController(object):
             ), 'right', speed=0.15)
 
         for pick, place in [('block1', 'board1'), ('block2', 'board3'), ('block3', 'board5'), ('block4', 'board7'), ('block5', 'board9')]:
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
             self.pick_from_location(pick, 'right')
             self.place_at_location(place, 'right')
-            self.go_to_pose(self._home_pose['right'], 'right', speed=0.4)
+            self.home('right')
 
     def _poll_move(self):
-        pass
+        while not rospy.is_shutdown():
+            if self._current_move == 10:
+                # Reset the board
+                self._current_move = 0
+                self._blocks_used = 0
+                rospy.loginfo(f'Good game! Resetting board.')
+
+            elif 0 < self._current_move < 10:
+                # I don't always multithread, but when I do.....
+                # I don't do it safely.
+                place_location = self._current_move
+                self._current_move = 0
+
+                if self._blocks_used >= 5:
+                    rospy.logerr('I am out of blocks, please reset the board. Send command "10"')
+                    continue
+
+                self._blocks_used += 1
+                pick_location = self._blocks_used
+
+                rospy.loginfo(f'Placing Block {pick_location} at Board location {place_location}')
+
+                self.home('right')
+                self.pick_from_location(f'block{pick_location}', 'right')
+                self.place_at_location(f'board{place_location}', 'right')
+                self.home('right')
+
+            self._control_rate.sleep()
+
+    def home(self, limb, speed=0.4):
+        self.go_to_pose(self._home_pose[limb], limb, speed=0.4)
+
 
     def run(self):
-        self._calibrate_pick_and_place()
+        # self._calibrate()
+        # self._calibrate_pick_and_place()
+        self._poll_move()
 
 def main():
     controller = BaxterIKController()

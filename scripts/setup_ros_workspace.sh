@@ -1,5 +1,5 @@
-mkdir -p /home/nick/development/ros_ws/src
-ln -s /home/nick/development/CSCI-5551/src/project_ws/src/baxter_moveit_controller /home/nick/development/ros_ws/src/baxter_moveit_controller
+mkdir -p /home/$USER/development/ros_ws/src
+ln -s /home/$USER/development/CSCI-5551/src/project_ws/src/baxter_moveit_controller /home/$USER/development/ros_ws/src/baxter_moveit_controller
 
 sudo apt-get update
 
@@ -20,19 +20,19 @@ sudo apt-get install -y ros-noetic-ros-comm
 sudo apt-get install -y ros-noetic-realsense2-camera
 sudo apt-get install -y ros-noetic-realsense2-description
 
-cd /home/nick/development/ros_ws/src
+cd /home/$USER/development/ros_ws/src
 source /
 wstool init .
 wstool merge https://gist.githubusercontent.com/padpy/ac0961f2f0a7134d99a1ac0d389e1e6c/raw/081b8036d5efb78eba8fa766df928e920ab2f9dc/baxter_package.rosinstall
 wstool update
-cd /home/nick/development/ros_ws
+cd /home/$USER/development/ros_ws
 source /opt/ros/noetic/setup.bash
 catkin_make -DCATKIN_BLACKLIST_PACKAGES="dope"
 source devel/setup.bash
-# cd /home/nick/development/ros_ws/src/dope
+# cd /home/$USER/development/ros_ws/src/dope
 # python3 -m pip install -r requirements.txt
 # cd /ros_ws
 # rosdep install --from-paths /ros_ws/src/dope -i --rosdistro noetic -y
 catkin_make
-# echo 'source /home/nick/development/ros_ws/devel/setup.bash' >> ~/.bashrc
+# echo 'source /home/$USER/development/ros_ws/devel/setup.bash' >> ~/.bashrc
 # source ~/.bashrc

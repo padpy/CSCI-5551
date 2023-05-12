@@ -20,7 +20,7 @@ source devel/setup.bash
 ```
 
 ## Running the Demo code
-Currently, due to an issue with the gazebo plugin for Baxter motion planning, the demo code must be run on the Baxter's physical hardware.
+Currently, due to an issue with the gazebo plugin for Baxter motion planning, the demo code must be run with the Baxter's physical hardware.
 ### Terminal 1: Start CV
 ```bash
 source devel/setup.bash
